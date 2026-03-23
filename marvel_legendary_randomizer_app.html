@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Marvel Legendary Randomizer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0b0b;
+      --card: #111111;
+      --marvel-red: #e62429;
+      --marvel-dark: #1a1a1a;
+      --text: #f5f5f5;
+      --muted: #9ca3af;
+      --win: #22c55e;
+      --loss: #ef4444;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(circle at top, #1a1a1a, #000);
+      color: var(--text);
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      font-family: 'Bebas Neue', sans-serif;
+      letter-spacing: 2px;
+      font-size: 42px;
+      color: var(--marvel-red);
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: linear-gradient(145deg, #111, #1a1a1a);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 1px solid #222;
+      box-shadow: 0 0 20px rgba(0,0,0,0.8);
+    }
+
+    /* BUTTONS (FIXED READABILITY) */
+    .btn {
+      border: none;
+      padding: 14px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: all 0.15s ease;
+      color: #fff;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    }
+
+    .btn.primary {
+      background: var(--marvel-red);
+      box-shadow: 0 4px 0 #7f1d1d;
+    }
+
+    .btn.win {
+      background: linear-gradient(135deg, #15803d, #22c55e);
+      box-shadow: 0 4px 0 #14532d;
+    }
+
+    .btn.loss {
+      background: linear-gradient(135deg, #b91c1c, #ef4444);
+      box-shadow: 0 4px 0 #7f1d1d;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .result {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .top-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    /* CARD STYLE FRAME */
+    .big-card {
+      position: relative;
+      padding: 18px;
+      border-radius: 12px;
+      background: linear-gradient(145deg, #1a1a1a, #0a0a0a);
+      border: 2px solid var(--marvel-red);
+      transform: perspective(800px) rotateY(90deg);
+      animation: flipIn 0.5s forwards;
+    }
+
+    @keyframes flipIn {
+      to { transform: perspective(800px) rotateY(0deg); }
+    }
+
+    .big-label {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .big-value {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px;
+      margin-top: 6px;
+    }
+
+    .category {
+      background: linear-gradient(145deg, #1a1a1a, #0a0a0a);
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid #333;
+    }
+
+    .category-title {
+      font-size: 13px;
+      color: var(--marvel-red);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    .items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    /* SMALL CARD STYLE */
+    .item {
+      background: #111;
+      padding: 14px 18px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      border: 2px solid #333;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+      transform: translateY(20px) scale(0.95);
+      opacity: 0;
+      animation: drawCard 0.4s forwards;
+    }
+
+    .item:nth-child(1) { animation-delay: 0.1s; }
+    .item:nth-child(2) { animation-delay: 0.2s; }
+    .item:nth-child(3) { animation-delay: 0.3s; }
+
+    @keyframes drawCard {
+      to {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+    }
+
+    .stats {
+      font-size: 14px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .history-item {
+      border-top: 1px solid #222;
+      padding: 10px 0;
+      font-size: 14px;
+    }
+
+    .win { color: var(--win); }
+    .loss { color: var(--loss); }
+
+    @media (max-width: 600px) {
+      .top-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>MARVEL LEGENDARY</h1>
+
+  <div class="card">
+    <div class="actions">
+      <button class="btn primary" onclick="randomize()">Randomize</button>
+      <button class="btn win" onclick="recordResult('win')">Win</button>
+      <button class="btn loss" onclick="recordResult('loss')">Loss</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div id="output" class="result">
+      Click randomize to begin
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="stats" id="stats"></div>
+  </div>
+
+  <div class="card">
+    <h3 style="font-family: Bebas Neue;">Game History</h3>
+    <div id="history"></div>
+  </div>
+</div>
+
+<script>
+const masterminds = ["Loki","Red Skull","Dr. Doom","Magneto","Carnage","Mysterio"];
+const schemes = ["Midtown Bank Robbery","Invade the Daily Bugle News HQ","Splice Humans with Spider DNA","The Clone Saga","Weave a Web of Lies","Negative Zone Prison Breakout","Portals to the Dark Dimension","Replace Earth's Leaders with Killbots","Secret Invasion of the Skrull Shapeshifters","Super Hero Civil War","The Legacy Virus","Unleash the Power of the Cosmic Cube"];
+const henchmen = ["Hand Ninjas","Doombot Legion","Savage Land Mutates","Sentinel"];
+const villains = ["Hydra","Skrulls","Maximum Carnage","Sinister Six","Brotherhood","Enemies of Asgard","Masters of Evil","Radiation","Spider-Foes"];
+const heroes = ["Spider-Man","Iron Man","Captain America","Hulk","Black Widow","Cyclops","Deadpool","Emma Frost","Gambit","Hawkeye","Nick Fury","Rogue","Storm","Thor","Wolverine","Black Cat","Moon Knight","Scarlet Spider","Spider-Woman","Symbiote Spider-Man"];
+
+let currentGame = null;
+let stats = JSON.parse(localStorage.getItem('legendaryStats')) || { wins: 0, losses: 0, history: [] };
+
+function pickRandom(arr, count=1) {
+  return [...arr].sort(() => 0.5 - Math.random()).slice(0, count);
+}
+
+function randomize() {
+  currentGame = {
+    mastermind: pickRandom(masterminds)[0],
+    scheme: pickRandom(schemes)[0],
+    henchmen: pickRandom(henchmen, 1),
+    villains: pickRandom(villains, 1),
+    heroes: pickRandom(heroes, 3)
+  };
+
+  document.getElementById('output').innerHTML = `
+    <div class="top-row">
+      <div class="big-card">
+        <div class="big-label">Mastermind</div>
+        <div class="big-value">${currentGame.mastermind}</div>
+      </div>
+      <div class="big-card">
+        <div class="big-label">Scheme</div>
+        <div class="big-value">${currentGame.scheme}</div>
+      </div>
+    </div>
+
+    <div class="category">
+      <div class="category-title">Henchmen</div>
+      <div class="items">${currentGame.henchmen.map(h => `<div class="item">${h}</div>`).join('')}</div>
+    </div>
+
+    <div class="category">
+      <div class="category-title">Villains</div>
+      <div class="items">${currentGame.villains.map(v => `<div class="item">${v}</div>`).join('')}</div>
+    </div>
+
+    <div class="category">
+      <div class="category-title">Heroes</div>
+      <div class="items">${currentGame.heroes.map(h => `<div class="item">${h}</div>`).join('')}</div>
+    </div>
+  `;
+}
+
+function recordResult(result) {
+  if (!currentGame) return alert('Generate a game first!');
+
+  if (result === 'win') stats.wins++;
+  else stats.losses++;
+
+  stats.history.unshift({ ...currentGame, result, date: new Date().toLocaleString() });
+  localStorage.setItem('legendaryStats', JSON.stringify(stats));
+
+  updateStats();
+  renderHistory();
+}
+
+function updateStats() {
+  document.getElementById('stats').innerText = `Wins: ${stats.wins} | Losses: ${stats.losses}`;
+}
+
+function renderHistory() {
+  const container = document.getElementById('history');
+  container.innerHTML = '';
+
+  stats.history.forEach(game => {
+    const div = document.createElement('div');
+    div.className = 'history-item';
+
+    div.innerHTML = `
+      <strong class="${game.result}">${game.result.toUpperCase()}</strong> - ${game.date}<br>
+      ${game.mastermind} | ${game.scheme}<br>
+      H: ${game.heroes.join(', ')}
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+updateStats();
+renderHistory();
+</script>
+
+</body>
+</html>
